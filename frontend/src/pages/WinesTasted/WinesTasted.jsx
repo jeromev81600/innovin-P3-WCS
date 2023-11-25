@@ -7,6 +7,7 @@ import AuthContext from "../../contexts/AuthContext";
 import Card from "./Card";
 import "./WinesTasted.scss";
 import ButtonPrimary from "../../components/ButtonPrimary";
+import ModalError from "../../components/Modal/ModalError";
 
 function WinesTasted() {
   // const for context
@@ -21,6 +22,8 @@ function WinesTasted() {
     setMaxSelected,
     maxSelected,
   } = CreationWorkshopValue;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // const for fetch
   const [wines, setWines] = useState([]);
@@ -63,15 +66,23 @@ function WinesTasted() {
       setSelectedWinesIds(
         currentSelectedWinesIds.filter((id) => id !== wineNumber)
       );
-      setWineSelectedCounter(wineSelectedCounter - 1); // Décrémenter le compteur lors de la déselection
+      setWineSelectedCounter((prevState) => prevState - 1); // Décrémenter le compteur lors de la déselection avec  une fonction de mise à jour de l'état qui prend l'état précédent en paramètre.
+      setMaxSelected(false);
     } else if (currentSelectedWinesIds.length < 3) {
       setSelectedTastedWinesIds([...currentTastedWinesIds, tastedWineId]);
       setSelectedWinesIds([...currentSelectedWinesIds, wineNumber]);
-      setWineSelectedCounter(wineSelectedCounter + 1); // Incrémenter le compteur lors de la sélection
+      setWineSelectedCounter((prevState) => prevState + 1); // Incrémenter le compteur lors de la sélection avec une fonction de mise à jour de l'état qui prend l'état précédent en paramètre.
+      setMaxSelected(currentSelectedWinesIds.length + 1 >= 4);
     } else {
-      setMaxSelected(!maxSelected);
+      setMaxSelected(true);
     }
   };
+
+  useEffect(() => {
+    if (maxSelected) {
+      setIsModalOpen(true);
+    }
+  }, [maxSelected]);
 
   return (
     <div className="wineContent">
@@ -90,11 +101,26 @@ function WinesTasted() {
               isSelected={tastingNote.selectedWinesIds.includes(wine.id)}
               number={index + 1}
               onSelect={handleWineSelection}
+              wineSelectedCounter={wineSelectedCounter}
             />
           ))}
         </div>
       )}
-
+      <ModalError
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        message="Vous ne pouvez pas sélectionner plus de 3 vins !"
+        firstButton="Fermer"
+      />
+      {isModalOpen && (
+        <div
+          className="modalBg"
+          onClick={() => {
+            setIsModalOpen(false);
+          }}
+          aria-hidden="true"
+        />
+      )}
       <Link to="/revelation">
         <ButtonPrimary> Révélation</ButtonPrimary>
       </Link>

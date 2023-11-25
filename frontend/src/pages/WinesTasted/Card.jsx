@@ -8,12 +8,17 @@ import star from "../../assets/Icons/Star_Default_Icon.svg";
 import starHover from "../../assets/Icons/Star_Hover_Icon.svg";
 import note from "../../assets/Icons/Tasting_Note_Icon.svg";
 
-function Card({ wine, number, isSelected, onSelect }) {
+function Card({ wine, number, isSelected, onSelect, wineSelectedCounter }) {
   const [localSelected, setLocalSelected] = useState(isSelected);
 
   const handleStarButtonClick = () => {
-    setLocalSelected(!localSelected);
-    onSelect(number, wine.id);
+    if (wineSelectedCounter === 3) {
+      setLocalSelected(false);
+      onSelect(number, wine.id);
+    } else {
+      setLocalSelected(!localSelected);
+      onSelect(number, wine.id);
+    }
   };
 
   return (
@@ -103,6 +108,7 @@ Card.propTypes = {
   number: PropTypes.number.isRequired,
   isSelected: PropTypes.bool.isRequired,
   onSelect: PropTypes.func.isRequired,
+  wineSelectedCounter: PropTypes.number.isRequired,
 };
 
 export default Card;
