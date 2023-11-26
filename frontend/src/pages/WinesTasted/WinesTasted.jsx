@@ -7,6 +7,7 @@ import AuthContext from "../../contexts/AuthContext";
 import Card from "./Card";
 import "./WinesTasted.scss";
 import ButtonPrimary from "../../components/ButtonPrimary";
+import ModalError from "../../components/Modal/ModalError";
 
 function WinesTasted() {
   // const for context
@@ -21,6 +22,8 @@ function WinesTasted() {
     setMaxSelected,
     maxSelected,
   } = CreationWorkshopValue;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // const for fetch
   const [wines, setWines] = useState([]);
@@ -48,14 +51,14 @@ function WinesTasted() {
   // Selection wine for TastingNote max 3
 
   const handleWineSelection = (wineNumber, tastedWineId) => {
-    // Récupérer les tableaux actuels des vins sélectionnés et dégustés
+    // Retrieve current tables of wines selected and tasted
     const currentTastedWinesIds = tastingNote.selectedTastedWinesIds;
     const currentSelectedWinesIds = tastingNote.selectedWinesIds;
 
-    // Vérifier si le vin est déjà sélectionné et dégusté
+    // Checks if the wine is already selected and tasted
     const isWineSelected = currentSelectedWinesIds.includes(wineNumber);
 
-    // Gérer la sélection et la dégustation en fonction de l'état actuel
+    // Manage selection and tasting based on current status
     if (isWineSelected) {
       setSelectedTastedWinesIds(
         currentTastedWinesIds.filter((id) => id !== tastedWineId)
@@ -63,15 +66,23 @@ function WinesTasted() {
       setSelectedWinesIds(
         currentSelectedWinesIds.filter((id) => id !== wineNumber)
       );
-      setWineSelectedCounter(wineSelectedCounter - 1); // Décrémenter le compteur lors de la déselection
+      setWineSelectedCounter((prevState) => prevState - 1); // Decrements the counter on deselection with a state update function that takes the previous state as a parameter.
+      setMaxSelected(false);
     } else if (currentSelectedWinesIds.length < 3) {
       setSelectedTastedWinesIds([...currentTastedWinesIds, tastedWineId]);
       setSelectedWinesIds([...currentSelectedWinesIds, wineNumber]);
-      setWineSelectedCounter(wineSelectedCounter + 1); // Incrémenter le compteur lors de la sélection
+      setWineSelectedCounter((prevState) => prevState + 1); // Increments the counter on selection with a state update function that takes the previous state as a parameter.
+      setMaxSelected(currentSelectedWinesIds.length + 1 >= 4);
     } else {
-      setMaxSelected(!maxSelected);
+      setMaxSelected(true);
     }
   };
+
+  useEffect(() => {
+    if (maxSelected) {
+      setIsModalOpen(true);
+    }
+  }, [maxSelected]);
 
   return (
     <div className="wineContent">
@@ -90,11 +101,26 @@ function WinesTasted() {
               isSelected={tastingNote.selectedWinesIds.includes(wine.id)}
               number={index + 1}
               onSelect={handleWineSelection}
+              wineSelectedCounter={wineSelectedCounter}
             />
           ))}
         </div>
       )}
-
+      <ModalError
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        message="Vous ne pouvez pas sélectionner plus de 3 vins !"
+        firstButton="Fermer"
+      />
+      {isModalOpen && (
+        <div
+          className="modalBg"
+          onClick={() => {
+            setIsModalOpen(false);
+          }}
+          aria-hidden="true"
+        />
+      )}
       <Link to="/revelation">
         <ButtonPrimary> Révélation</ButtonPrimary>
       </Link>
