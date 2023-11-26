@@ -51,14 +51,14 @@ function WinesTasted() {
   // Selection wine for TastingNote max 3
 
   const handleWineSelection = (wineNumber, tastedWineId) => {
-    // Récupérer les tableaux actuels des vins sélectionnés et dégustés
+    // Retrieve current tables of wines selected and tasted
     const currentTastedWinesIds = tastingNote.selectedTastedWinesIds;
     const currentSelectedWinesIds = tastingNote.selectedWinesIds;
 
-    // Vérifier si le vin est déjà sélectionné et dégusté
+    // Checks if the wine is already selected and tasted
     const isWineSelected = currentSelectedWinesIds.includes(wineNumber);
 
-    // Gérer la sélection et la dégustation en fonction de l'état actuel
+    // Manage selection and tasting based on current status
     if (isWineSelected) {
       setSelectedTastedWinesIds(
         currentTastedWinesIds.filter((id) => id !== tastedWineId)
@@ -66,12 +66,12 @@ function WinesTasted() {
       setSelectedWinesIds(
         currentSelectedWinesIds.filter((id) => id !== wineNumber)
       );
-      setWineSelectedCounter((prevState) => prevState - 1); // Décrémenter le compteur lors de la déselection avec  une fonction de mise à jour de l'état qui prend l'état précédent en paramètre.
+      setWineSelectedCounter((prevState) => prevState - 1); // Decrements the counter on deselection with a state update function that takes the previous state as a parameter.
       setMaxSelected(false);
     } else if (currentSelectedWinesIds.length < 3) {
       setSelectedTastedWinesIds([...currentTastedWinesIds, tastedWineId]);
       setSelectedWinesIds([...currentSelectedWinesIds, wineNumber]);
-      setWineSelectedCounter((prevState) => prevState + 1); // Incrémenter le compteur lors de la sélection avec une fonction de mise à jour de l'état qui prend l'état précédent en paramètre.
+      setWineSelectedCounter((prevState) => prevState + 1); // Increments the counter on selection with a state update function that takes the previous state as a parameter.
       setMaxSelected(currentSelectedWinesIds.length + 1 >= 4);
     } else {
       setMaxSelected(true);
